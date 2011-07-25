@@ -1,0 +1,1 @@
+The goal of this project is to enable mathematical communications using MathJax and JSXGraph in real-time using node.js and websocket.io for server communications. Mongo may also appear for history and account controlling.
