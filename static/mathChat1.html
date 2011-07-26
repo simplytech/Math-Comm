@@ -1,0 +1,58 @@
+<html>
+<head >
+  <title>
+    MathChat
+  </title>
+
+<link rel="stylesheet" href="css/base.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+
+
+
+</head>
+<body>
+  <form id="login">
+    Username: <input type="text" id="username" name="username" cols=20></input>
+    <br />
+    Nickname: <input type="text" id="nickname" name="nickname" cols=20></input>
+    <br />
+    <input type="button" id="submitLogin" value="Submit" />
+  </form>
+  <h4 id="loginProcessing" class="hide">Login being processed</h4>
+  <ol id="menu" class="hide">
+    <li id="newRoom">Start a new room</li>
+    <li id="getHistory">Get history</li>
+    <li id="joinRoom">Join a room:
+      <ol id="roomList">
+      </ol></li>
+  </ol>
+    
+  <ol id="rooms">
+  </ol>  
+    
+  <div id="templates" class="hide">
+    <div class="chatGraph"></div>
+    <div class="chatTextToSend"></div>
+    <div class="chatTextReceived"></div>
+    
+  </div>
+  
+    <script src = "/socket.io/socket.io.js" > </script>
+  <script type="text/javascript " src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script src = "http://code.jquery.com/jquery-1.6.2.min.js" > </script>
+  
+  <script type='text/javascript ' src="http://programmingmath.com/lib/jsxgraphcore.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://programmingmath.com/lib/jsxgraph.css" />
+  <script src="/js/notify.js">
+  </script>
+  <script src="/js/inputs.js">
+  </script>
+  <script src="/js/outputs.js">
+  </script>
+  <script src="/js/sockets.js">
+  </script>
+  <script src="/js/graphs.js">
+  </script>
+  <script src="/test.js">
+  </script>
+</body>  

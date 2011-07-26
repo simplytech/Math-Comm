@@ -1,0 +1,13 @@
+.hide  {display:none;}
+
+input[type="text"], input[type="password"], textarea {
+    width: 80ex;
+    margin: 0;
+    padding: 2px; /* it's best to have a little padding */
+    border: 1px solid #ccc; /* gets around varying border styles */
+    border-radius: 4px /* optional; for newer browsers */
+}
+
+input[type="text"], input[type="password"]   {
+    width: 50ex;
+}
