@@ -23,10 +23,10 @@ $(function () {
       roomWrap$ : $('<li class="roomWrap"></li>'),
       title$ : $('<h5 class="roomTitle">'+owner+'</h5>'),
       graph$ : $('<div id="graph'+id+'"" class="jxgbox" style="width: 65ex; height: 65ex;'+
-      ' -moz-user-select: none; overflow: hidden; position: relative;"></div >'),
-      graphInp$ :  $('<input type="text"  class="graphIn"></input>'),      
+      ' -moz-user-select: none; overflow: hidden; position: relative;"></div >'),  
       chatWin$ : $('<ol class="chatWin"/></ol>'),
       chatInp$ :  $('<textarea class="chatIn" rows=5></textarea>'),
+      chatSend$ : $('<button class="send">Send Chat</button>'),
       chatWrap$ : $('<div class="chatWrapper"></div>'),
       exitRoom$ : $('<button class="exit">Exit Room</button>')
     };
@@ -34,15 +34,14 @@ $(function () {
       append(roomPieces[id].title$).
       append(roomPieces[id].graph$).
       append("<form>").
-      append("Graph Console<br/>").
-      append(roomPieces[id].graphInp$).
       append("<br/>Chat<br/>").
       append(roomPieces[id].chatWrap$).
       append(roomPieces[id].exitRoom$).
       append("</form>");
     roomPieces[id].chatWrap$.
       append(roomPieces[id].chatWin$).
-      append(roomPieces[id].chatInp$);
+      append(roomPieces[id].chatInp$).
+      append(roomPieces[id].chatSend$);
     $('#rooms').append(roomPieces[id].roomWrap$);
     roomPieces[id].brd = JXG.JSXGraph.initBoard('graph'+id,
     {   axis: true,
@@ -56,7 +55,7 @@ $(function () {
     });
     roomPieces[id].points = {};
     roomPieces[id].objects = {};
-    gcd.emit('loadedRoom', roomPieces[id].chatInp$, roomPieces[id].graphInp$, roomPieces[id].exitRoom$, id);
+    gcd.emit('loadedRoom', roomPieces[id].chatInp$, roomPieces[id].chatSend$, roomPieces[id].exitRoom$, id);
   })
   
   gcd.on('addLine', function (id, username, code, text) {

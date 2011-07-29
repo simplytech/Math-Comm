@@ -74,29 +74,27 @@ $(function () {
       shift = false;
     }
   });
+
   
   //this attaches the appropriate event handlers on new chatbox and graphbox
-  gcd.on("loadedRoom", function (chatbox$, graphbox$, exitRoom$, roomId) {
+  gcd.on("loadedRoom", function (chatbox$, chatsend$, exitRoom$, roomId) {
+		sendChat = function () {
+			gcd.emit('sendChat', [roomId, chatbox$.val()]);			
+			chatbox$.val('');
+		};
     chatbox$.keyup(function (event) {
       if (event.keyCode == 13 ) {
-        if (!shift) {
-          gcd.emit('sendChat', [roomId, $(this).val()]);
-          $(this).val('');
-        }
-      }
-    });
-    graphbox$.keyup(function (event) {
-      if (event.keyCode == 13 ) {
-        console.log("hello");
-        if (!shift) {
-          gcd.emit('sendGraph', [roomId, $(this).val()]);
-          $(this).val('');
+        if (shift) {
+					sendChat();
         }
       }
     });
     exitRoom$.click(function () {
       gcd.emit('leaveRoom', roomId);
     });
+		chatsend$.click(function () {
+			sendChat(); 
+		});
   });
   
    
