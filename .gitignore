@@ -1,0 +1,2 @@
+#exclude installed modules--install them manually
+node_modules/
