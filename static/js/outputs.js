@@ -1,5 +1,9 @@
 
 $(function () {
+	var creole = new Parse.Simple.Creole();
+	
+	
+	
   JXG.Options.zoom.factor = 1.05;
   
   var rooms$ = $('#rooms');
@@ -58,12 +62,53 @@ $(function () {
     gcd.emit('loadedRoom', roomPieces[id].chatInp$, roomPieces[id].chatSend$, roomPieces[id].exitRoom$, id);
   })
   
+	mathSafe = function () {
+		var count = 0;
+		var mathPieces = [];
+		//probably need to add other delimiters?
+		var mathReg = /\\\(.*\\\)/g;
+		var ret = {}
+		ret.takeMathOut = function (text) {
+			var str; 
+			str = text.replace(mathReg, function (math) {
+				count = mathPieces.length;
+				mathPieces.push(math);
+				return "MATH"+count; 
+			});
+			return str;
+		};
+		
+		ret.putMathIn = function (text) {
+			var str = text.replace(/MATH(\d+)/, function (ignore, digits) {
+				return "<span class='math'>"+digits+"</span>";
+			});
+			return str; 
+		};
+		
+		ret.subMathIn = function (ind, el) {
+			el = $(el); 
+			el.text(mathPieces[el.text()*1.0]);
+		} 
+		
+		return ret;
+	}(); 
+
   gcd.on('addLine', function (id, username, code, text) {
     var userText, names, j, m, constr;
     switch (code) {
         case 'c':
           //could process text in some way, maybe creole wiki javascript parser
-          userText$ = $('<span class="chatLine"></span>').text(text);
+          userText$ = $('<span class="chatLine"></span>');
+					//take out math before creole
+					text = mathSafe.takeMathOut(text); 
+					creole.parse(userText$[0], text);
+					//replace math; better way possible, but why bother if this works?
+					text = userText$.html();
+					console.log(text);
+					userText$.html(mathSafe.putMathIn(text));
+					console.log(text);
+					console.log(userText$, userText$.find(".math"));
+					userText$.find(".math").each(mathSafe.subMathIn);
           MathJax.Hub.Queue(["Typeset", MathJax.Hub, userText$[0]]);
           roomPieces[id].chatWin$.append($('<li><span class="username">'+username+': </span></li>').append(userText$));
         break;
