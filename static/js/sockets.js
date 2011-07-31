@@ -3,7 +3,14 @@
 
 $(function () {
   
-var socket = io.connect();
+var socket; 
+
+if (local) {
+	socket = new Emitter();
+	socket.emitDebug();
+} else {
+	socket = io.connect();
+}
 
 //models e.on("", function() {o.emit()})
 var emitOnSetup = function (e, o, msgs) {

@@ -1,3 +1,6 @@
+/*globals 
+	$, Parse, JXG, roomPieces, gcd, window
+*/
 
 $(function () {
 	var creole = new Parse.Simple.Creole();
@@ -7,7 +10,7 @@ $(function () {
   JXG.Options.zoom.factor = 1.05;
   
   var rooms$ = $('#rooms');
-  roomPieces = {};
+  window.roomPieces = {};
   var username, nickname;
 
   gcd.on('loadUser', function(data) {
@@ -20,7 +23,7 @@ $(function () {
   
   gcd.on('roomId', function (id) {
     gcd.emit('makeRoom', id, username);
-  })
+  });
   
   gcd.on('makeRoom', function (id, owner) {
     roomPieces[id] = {
@@ -59,76 +62,63 @@ $(function () {
     });
     roomPieces[id].points = {};
     roomPieces[id].objects = {};
+		roomPieces[id].modGraph = function (ind, el) {
+	    modifyGraph(roomPieces[id].brd, $(el).text(), roomPieces[id].points, roomPieces[id].objects);
+		};
     gcd.emit('loadedRoom', roomPieces[id].chatInp$, roomPieces[id].chatSend$, roomPieces[id].exitRoom$, id);
-  })
+  });
   
-	mathSafe = function () {
+	var safe = function (reg, sub, spanClass, repReg) {
 		var count = 0;
-		var mathPieces = [];
-		//probably need to add other delimiters?
-		var mathReg = /\\\(.*\\\)/g;
-		var ret = {}
-		ret.takeMathOut = function (text) {
+		var pieces = [];
+		var ret = {};
+		ret.takeOut = function (text) {
 			var str; 
-			str = text.replace(mathReg, function (math) {
-				count = mathPieces.length;
-				mathPieces.push(math);
-				return "MATH"+count; 
+			str = text.replace(reg, function (snippet) {
+				count = pieces.length;
+				pieces.push(snippet);
+				return sub+count; 
 			});
 			return str;
 		};
-		
-		ret.putMathIn = function (text) {
-			var str = text.replace(/MATH(\d+)/, function (ignore, digits) {
-				return "<span class='math'>"+digits+"</span>";
+				
+		ret.putIn = function (text) {
+			var str = text.replace(repReg, function (ignore, digits) {
+				return "<span class='"+spanClass+"'>"+digits+"</span>";
 			});
 			return str; 
 		};
 		
-		ret.subMathIn = function (ind, el) {
+		ret.subIn = function (ind, el) {
 			el = $(el); 
-			el.text(mathPieces[el.text()*1.0]);
-		} 
+			el.text(pieces[el.text()]);
+		}; 
 		
 		return ret;
-	}(); 
+	};
+	
+	//probably need to add other delimiters?
+	var mathSafe = safe( /\\\(.*\\\)/g, "MATH", "math", /MATH(\d+)/g);
+	var graphSafe = safe(/^(\!.*)$/gm, "GRAPH", "graph", /GRAPH(\d+)/g);
+
 
   gcd.on('addLine', function (id, username, code, text) {
     var userText, names, j, m, constr;
-    switch (code) {
-        case 'c':
-          //could process text in some way, maybe creole wiki javascript parser
-          userText$ = $('<span class="chatLine"></span>');
-					//take out math before creole
-					text = mathSafe.takeMathOut(text); 
-					creole.parse(userText$[0], text);
-					//replace math; better way possible, but why bother if this works?
-					text = userText$.html();
-					console.log(text);
-					userText$.html(mathSafe.putMathIn(text));
-					console.log(text);
-					console.log(userText$, userText$.find(".math"));
-					userText$.find(".math").each(mathSafe.subMathIn);
-          MathJax.Hub.Queue(["Typeset", MathJax.Hub, userText$[0]]);
-          roomPieces[id].chatWin$.append($('<li><span class="username">'+username+': </span></li>').append(userText$));
-        break;
-        case 'g':
-          modifyGraph(roomPieces[id].brd, text, roomPieces[id].points, roomPieces[id].objects);
-        break;
-        case 'u' :
-          switch (text) {
-            case "added" :
-            break;
-            case "removed" :
-            break;
-            case "owner" :
-            break;
-          }
-        break;
-        default:
-          console.log('Error: ' + text);
-        break;        
-      }
+    //could process text in some way, maybe creole wiki javascript parser
+     userText$ = $('<span class="chatLine"></span>');
+		//take out math before creole
+		text = mathSafe.takeOut(text);
+		text = graphSafe.takeOut(text);
+		creole.parse(userText$[0], text);
+		//replace math; better way possible, but why bother if this works?
+		text = userText$.html();
+		userText$.html(graphSafe.putIn(mathSafe.putIn(text)));
+		userText$.find(".math").each(mathSafe.subIn);
+		userText$.find(".graph").
+			each(graphSafe.subIn).
+			each(roomPieces[id].modGraph);					
+    roomPieces[id].chatWin$.append($('<li><span class="username">'+username+': </span></li>').append(userText$));
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, userText$[0]]);
   });
   
   gcd.on('roomData', function (data) {

@@ -1,6 +1,6 @@
 $(function () {
 
-  var construct = function (brd, text, points, objects) {
+  var construct = function (brd, text, points, objects) { 
     var nametype = text.match(/^\s*([A-Za-z]\w*)(\(|\=|\[|\:)/); 
     if (nametype === null) {
       gcd.emit("error", "no name", text);
@@ -33,7 +33,7 @@ $(function () {
     console.log(args);
     var point;
     switch (com) {
-      case "update" :  //!update(A,2,3)
+      case "u" :  //!update(A,2,3)
         try {
           point = points[args[0]];
           point.point.setPosition(JXG.COORDS_BY_USER, args[1]*1, args[2]*1);
@@ -50,14 +50,15 @@ $(function () {
 
   modifyGraph = function (brd, text, points, objects) {
     try {
-      var lines = text.split(/(;|\n)+/);
+      var lines = text.slice(1).split(/(;|\n)+/);
       if (lines) {
         var n = lines.length;
         for (var i = 0; i<n; i+= 1) {
-          if (lines[i][0] === '!') {
-            command(brd, text, points, objects)
+					var line = lines[i];
+          if (line[0] === '!') {
+            command(brd, line, points, objects)
           } else {
-            construct (brd, text, points, objects);
+            construct (brd, line, points, objects);
           }
         }
         brd.update();
@@ -85,7 +86,7 @@ $(function () {
               if ((x !== oldX) || (y !== oldY)) {
                   point.oldX = x;
                   point.oldY = y;
-                  gcd.emit("sendGraph", [id, '!update('+name+','+x+','+y+')']);
+                  gcd.emit("sendGraph", [id, '!!u('+name+','+x+','+y+')']);
               }
           }
         } catch (e) {
