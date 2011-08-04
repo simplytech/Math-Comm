@@ -1,6 +1,7 @@
 /*globals 
-	$, Parse, JXG, roomPieces, gcd, window
+	$, Parse, JXG, roomPieces, gcd, window, modifyGraph, MathJax, console
 */
+
 
 $(function () {
 	var creole = new Parse.Simple.Creole();
@@ -46,9 +47,9 @@ $(function () {
       append(roomPieces[id].exitRoom$).
       append("</form>");
     roomPieces[id].chatWrap$.
-      append(roomPieces[id].chatWin$).
-      append(roomPieces[id].chatInp$).
-      append(roomPieces[id].chatSend$);
+    	append(roomPieces[id].chatInp$).
+      append(roomPieces[id].chatSend$).
+      append(roomPieces[id].chatWin$);
     $('#rooms').append(roomPieces[id].roomWrap$);
     roomPieces[id].brd = JXG.JSXGraph.initBoard('graph'+id,
     {   axis: true,
@@ -103,7 +104,7 @@ $(function () {
 
 
   gcd.on('addLine', function (id, username, code, text) {
-    var userText, names, j, m, constr;
+    var userText$, names, j, m, constr;
     //could process text in some way, maybe creole wiki javascript parser
      userText$ = $('<span class="chatLine"></span>');
 		//take out math before creole
@@ -122,11 +123,12 @@ $(function () {
   });
   
   gcd.on('roomData', function (data) {
+    var i;
     var id = data.roomId;
     gcd.emit('makeRoom', id, data.owner);
     var list = data.actions;
     var n = list.length;
-    for (var i = 0; i<n; i += 1) {
+    for (i = 0; i<n; i += 1) {
       gcd.emit('addLine', id, list[i][0], list[i][1], list[i][2]);
     }
   });
@@ -146,13 +148,14 @@ $(function () {
   });
   
   gcd.on('roomList', function (list) {
+	  var i; 
     var n = list.length;
     var rl = $('#roomList');
-    for (var i =0; i<n; i+= 1) {
+    for ( i =0; i<n; i+= 1) {
       rl.append('<li id="join'+list[i][0]+'">'+list[i][1]+'</li>');  
     }
     //click behavior
-  })
+  });
   
 });
 
